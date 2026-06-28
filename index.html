@@ -209,6 +209,11 @@
             <div class="viewer-header">
               <div class="viewer-title" id="viewer-title-label">Mô hình hình học 2D - Cấu kiện BIM</div>
               <div class="viewer-controls">
+                <div class="view-mode-selector" id="view-mode-toggle">
+                  <button class="view-mode-btn active" id="btn-view-2d" onclick="switchViewMode('2D')">2D CAD</button>
+                  <button class="view-mode-btn" id="btn-view-3d" onclick="switchViewMode('3D')">3D BIM</button>
+                  <button class="view-mode-btn" id="btn-view-hybrid" onclick="switchViewMode('HYBRID')">2D + 3D</button>
+                </div>
                 <button class="viewer-btn" onclick="resetViewer()">Reset View</button>
               </div>
             </div>
@@ -228,6 +233,18 @@
                   <!-- Generated dynamically via app.js -->
                 </g>
               </svg>
+              
+              <!-- 3D BIM View -->
+              <div class="viewer-image-container" id="viewer-image-3d-wrap" style="display: none;">
+                <img id="viewer-img-3d" src="" alt="Mô hình 3D BIM" class="viewer-image">
+                <div class="image-hotspots" id="hotspots-3d"></div>
+              </div>
+
+              <!-- Hybrid BIM View -->
+              <div class="viewer-image-container" id="viewer-image-hybrid-wrap" style="display: none;">
+                <img id="viewer-img-hybrid" src="" alt="Kết hợp 2D + 3D" class="viewer-image">
+                <div class="image-hotspots" id="hotspots-hybrid"></div>
+              </div>
             </div>
             <div class="scenario-brief" id="scenario-brief-desc">
               Thay đổi các thanh trượt và đặc tính ở cột bên trái để quan sát cấu kiện hình học biến đổi trực tiếp trên bản vẽ thiết kế BIM.

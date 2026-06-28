@@ -8,6 +8,7 @@
 const STATE = {
   activeProject: 'CIVIL', // 'CIVIL' | 'INFRA'
   activeTab: 'theory', // 'theory' | 'demo' | 'policy'
+  viewMode: '2D', // '2D' | '3D' | 'HYBRID'
   
   civil: {
     livingDepthOffset: 0.0, // 0.0 to 1.5 meters
@@ -39,6 +40,9 @@ window.addEventListener('DOMContentLoaded', () => {
   
   // Set up pipeline click event documentation details
   showPipelineNode(0);
+  
+  // Initialize view mode
+  switchViewMode('2D');
 });
 
 // Switch between Projects (Civil vs Infrastructure)
@@ -79,6 +83,9 @@ function switchProject(projectKey) {
   
   // Refresh MasterFormat browser for the active project
   populateMasterFormatBrowser();
+  
+  // Update viewer images & hotspots if in 3D/Hybrid modes
+  updateViewerImages();
   
   // Reset active tab class triggers
   const activeTabLink = document.querySelector(`.tab-link.active`);
@@ -953,4 +960,188 @@ function renderInfraComparison(totalCost, bridgeLength, pvdLength) {
 // Formats number to currency style (e.g. 1.450.000)
 function formatNumber(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// ----------------------------------------------------
+// BIM VIEW MODES & HOTSPOTS INTERACTION
+// ----------------------------------------------------
+
+const HOTSPOT_DB = {
+  CIVIL: [
+    {
+      title: "Bê tông cốt thép sàn",
+      code: "03 30 00",
+      desc: "Bê tông cấp độ bền B22.5 (M300), tính tự động theo thể tích thực tế từ mô hình BIM.",
+      x: "52%", y: "62%"
+    },
+    {
+      title: "Tường xây / Vách ngăn",
+      code: "04 20 00",
+      desc: "Hệ tường gạch không nung dày 110mm hoặc tấm bê tông nhẹ nhẹ chịu lực.",
+      x: "42%", y: "42%"
+    },
+    {
+      title: "Cửa sổ nhôm kính Xingfa",
+      code: "08 50 00",
+      desc: "Đặc tả kính Low-E cản nhiệt kết hợp nhôm hệ Xingfa chính hãng nhập khẩu.",
+      x: "72%", y: "30%"
+    },
+    {
+      title: "Ốp gạch WC Granite",
+      code: "09 30 10",
+      desc: "Gạch Granite 300x600 cao cấp, chống trơn trượt cho bề mặt ẩm ướt.",
+      x: "24%", y: "24%"
+    }
+  ],
+  INFRA: [
+    {
+      title: "Dầm Super-T dự ứng lực",
+      code: "03 41 00",
+      desc: "Dầm Super-T BTCT dự ứng lực đúc sẵn L=33m cẩu lắp định vị trên mố.",
+      x: "56%", y: "46%"
+    },
+    {
+      title: "Bê tông cốt thép mố trụ cầu",
+      code: "03 30 20",
+      desc: "Thân mố trụ cầu bê tông mác cao đổ tại chỗ với cốt thép CB400-V.",
+      x: "46%", y: "66%"
+    },
+    {
+      title: "Xử lý nền đất yếu bằng bấc thấm PVD",
+      code: "31 32 00",
+      desc: "Cắm bấc thấm nhựa độ sâu 15m xử lý cố kết nền đắp cao trên đất yếu.",
+      x: "22%", y: "80%"
+    },
+    {
+      title: "Mặt đường bê tông nhựa",
+      code: "32 12 16",
+      desc: "Bê tông nhựa nóng 2 lớp chặt dày 12cm bảo đảm êm thuận tốc độ cao.",
+      x: "68%", y: "32%"
+    }
+  ]
+};
+
+function switchViewMode(mode) {
+  STATE.viewMode = mode;
+  
+  // Cập nhật trạng thái active cho các nút chế độ xem
+  document.querySelectorAll('.view-mode-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  const activeBtnId = mode === '2D' ? 'btn-view-2d' : (mode === '3D' ? 'btn-view-3d' : 'btn-view-hybrid');
+  const activeBtn = document.getElementById(activeBtnId);
+  if (activeBtn) activeBtn.classList.add('active');
+  
+  const svgCanvas = document.getElementById('interactive-svg');
+  const wrap3d = document.getElementById('viewer-image-3d-wrap');
+  const wrapHybrid = document.getElementById('viewer-image-hybrid-wrap');
+  const scenarioDesc = document.getElementById('scenario-brief-desc');
+  
+  if (mode === '2D') {
+    svgCanvas.style.display = 'block';
+    wrap3d.style.display = 'none';
+    wrapHybrid.style.display = 'none';
+    
+    document.getElementById('viewer-title-label').innerText = 'Mô hình hình học 2D - Cấu kiện BIM';
+    scenarioDesc.innerHTML = 'Thay đổi các thanh trượt và đặc tính ở cột bên trái để quan sát cấu kiện hình học biến đổi trực tiếp trên bản vẽ thiết kế BIM.';
+  } else if (mode === '3D') {
+    svgCanvas.style.display = 'none';
+    wrap3d.style.display = 'flex';
+    wrapHybrid.style.display = 'none';
+    
+    document.getElementById('viewer-title-label').innerText = 'Mô hình phối cảnh 3D BIM';
+    scenarioDesc.innerHTML = '<strong>Gợi ý:</strong> Di chuyển chuột lên các điểm nháy tròn (Hotspots) trên mô hình để xem mã đặc tả MasterFormat tương ứng. Nhấp vào điểm nháy để xem chi tiết quy tắc đo bóc. <em>(Lưu ý: Chuyển sang 2D CAD để thấy sự biến đổi hình học trực quan theo thanh trượt)</em>.';
+    
+    updateViewerImages();
+  } else if (mode === 'HYBRID') {
+    svgCanvas.style.display = 'none';
+    wrap3d.style.display = 'none';
+    wrapHybrid.style.display = 'flex';
+    
+    document.getElementById('viewer-title-label').innerText = 'Mô hình kết hợp 2D + 3D BIM';
+    scenarioDesc.innerHTML = '<strong>Gợi ý:</strong> Di chuyển chuột lên các điểm nháy tròn (Hotspots) trên mô hình để xem mã đặc tả MasterFormat tương ứng. Nhấp vào điểm nháy để xem chi tiết quy tắc đo bóc. <em>(Lưu ý: Chuyển sang 2D CAD để thấy sự biến đổi hình học trực quan theo thanh trượt)</em>.';
+    
+    updateViewerImages();
+  }
+}
+
+function updateViewerImages() {
+  const img3d = document.getElementById('viewer-img-3d');
+  const imgHybrid = document.getElementById('viewer-img-hybrid');
+  
+  if (!img3d || !imgHybrid) return;
+  
+  if (STATE.activeProject === 'CIVIL') {
+    img3d.src = 'assets/civil_bim_3d.png';
+    imgHybrid.src = 'assets/civil_bim_combo.png';
+    renderHotspots('CIVIL');
+  } else {
+    img3d.src = 'assets/infra_bim_3d.png';
+    imgHybrid.src = 'assets/infra_bim_combo.png';
+    renderHotspots('INFRA');
+  }
+}
+
+function renderHotspots(projectKey) {
+  const container3d = document.getElementById('hotspots-3d');
+  const containerHybrid = document.getElementById('hotspots-hybrid');
+  
+  if (!container3d || !containerHybrid) return;
+  
+  container3d.innerHTML = '';
+  containerHybrid.innerHTML = '';
+  
+  const hotspotsData = HOTSPOT_DB[projectKey];
+  if (!hotspotsData) return;
+  
+  hotspotsData.forEach(h => {
+    // Cho chế độ 3D
+    const el3d = createHotspotEl(h);
+    container3d.appendChild(el3d);
+    
+    // Cho chế độ Hybrid
+    const elHybrid = createHotspotEl(h);
+    containerHybrid.appendChild(elHybrid);
+  });
+}
+
+function createHotspotEl(h) {
+  const div = document.createElement('div');
+  div.className = 'hotspot';
+  div.style.left = h.x;
+  div.style.top = h.y;
+  
+  div.innerHTML = `
+    <div class="hotspot-tooltip">
+      <div class="hotspot-tooltip-title">${h.title}</div>
+      <div class="hotspot-tooltip-code">Mã: ${h.code}</div>
+      <div class="hotspot-tooltip-desc">${h.desc}</div>
+    </div>
+  `;
+  
+  // Nhấp vào điểm nháy sẽ tự nhảy sang tab lý thuyết và cuộn/click vào mã tương ứng
+  div.onclick = (e) => {
+    e.stopPropagation();
+    highlightMasterFormatCode(h.code.split(' / ')[0]);
+  };
+  
+  return div;
+}
+
+function highlightMasterFormatCode(code) {
+  // Chuyển sang Tab 1: Khung lý luận
+  switchTab('theory');
+  
+  // Tìm và nhấp vào mã phân loại tương ứng trong sidebar
+  const items = document.querySelectorAll('.class-item');
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const itemCodeEl = item.querySelector('.class-item-code');
+    if (itemCodeEl && itemCodeEl.innerText.trim() === code) {
+      item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      item.click();
+      break;
+    }
+  }
 }
