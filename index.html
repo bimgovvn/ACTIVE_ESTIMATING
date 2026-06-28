@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Demo Dự toán chủ động - Xu hướng mới trong quản lý chi phí đầu tư xây dựng trên mô hình BIM 5D">
+  <title>Dự Toán Chủ Động — Khung Lý Luận & Kịch Bản Minh Hoạ BIM</title>
+  
+  <!-- Premium Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="civil-mode">
+
+  <!-- Header Section -->
+  <header>
+    <div class="container header-wrap">
+      <div class="branding">
+        <h1 id="app-title">Dự Toán Chủ Động <span>BIM 5D</span></h1>
+        <div class="subtitle">Xu hướng mới trong quản lý chi phí đầu tư xây dựng</div>
+      </div>
+      
+      <!-- Segmented Project Selector -->
+      <div class="project-selector" id="project-toggle-container">
+        <button class="selector-btn active" id="btn-project-civil" onclick="switchProject('CIVIL')">NOXH Taseco (Dân dụng)</button>
+        <button class="selector-btn" id="btn-project-infra" onclick="switchProject('INFRA')">Cao tốc SG - Mộc Bài (Giao thông)</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav" aria-label="Main Navigation">
+      <button class="tab-link active" id="tab-btn-theory" onclick="switchTab('theory')">Khung Lý Luận</button>
+      <button class="tab-link" id="tab-btn-demo" onclick="switchTab('demo')">Kịch Bản Minh Hoạ</button>
+      <button class="tab-link" id="tab-btn-policy" onclick="switchTab('policy')">Khuyến Nghị Chính Sách</button>
+    </nav>
+
+    <!-- TAB 1: KHUNG LÝ LUẬN -->
+    <section class="tab-panel active" id="panel-theory">
+      <div class="theory-grid">
+        <div class="theory-section">
+          <div class="card">
+            <h2 class="card-title">1. Bản chất của "dự toán chủ động" & BIM 5D</h2>
+            <div class="theory-block">
+              <h3>Quy trình truyền thống vs Dự toán chủ động</h3>
+              <p>Lập dự toán truyền thống là quy trình thụ động và tuần tự: thiết kế hoàn tất mới đo bóc tiên lượng và áp giá. Mỗi khi thiết kế thay đổi, toàn bộ quy trình lặp lại gây trễ lớn và rủi ro sai sót tích lũy.</p>
+              <br>
+              <p><strong>Dự toán chủ động (Active Estimating)</strong> thiết lập liên kết tham số thường trực giữa mô hình hình học và lớp chi phí. Khi một tham số (kích thước, vật liệu, kết cấu) thay đổi, chi phí lập tức được tính lại xác định và tức thời. Vai trò của kỹ sư dự toán chuyển dịch từ "tính xem hết bao nhiêu" sang "phân tích phương án nào tối ưu".</p>
+            </div>
+            
+            <!-- BIM 5D Pipeline Interactive -->
+            <div class="pipeline-visual">
+              <h4 style="font-size:13px; color:var(--accent-cyan); margin-bottom:8px;" id="pipeline-title">Chuỗi giá trị BIM 5D (Click vào từng nút để xem liên kết dữ liệu)</h4>
+              <div class="pipeline-nodes">
+                <div class="pipeline-node active" onclick="showPipelineNode(0)">Cấu kiện BIM</div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-node" onclick="showPipelineNode(1)">Mã phân loại</div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-node" onclick="showPipelineNode(2)">Đặc tả & Quy tắc</div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-node" onclick="showPipelineNode(3)">Khối lượng x Giá</div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-node" onclick="showPipelineNode(4)">Suất đầu tư</div>
+              </div>
+              <div class="node-desc-card" id="pipeline-desc">
+                <strong>Cấu kiện BIM (Đối tượng hình học):</strong> Mang các thuộc tính kích thước vật lý (dày, rộng, cao, thể tích, diện tích...) và được gắn mã phân loại IFC (IfcClassificationReference) trực tiếp trong mô hình.
+              </div>
+            </div>
+
+            <div class="theory-block" style="border-left-color: var(--accent-teal);">
+              <h3>2. Nguyên lý: Giá không tách rời đặc tả kỹ thuật</h3>
+              <p>Đơn giá chỉ có ý nghĩa khi gắn liền với một <strong>đặc tả kỹ thuật (specification)</strong> rõ ràng. Một đơn vị bê tông, thép hay mét dài cầu chỉ được định giá chính xác khi xác định được mác, độ sụt, biện pháp thi công và quy mô nhịp cấu trúc. Hệ thống quản lý đồng bộ mã phân loại làm điểm neo chung cho cả đặc tả kỹ thuật và giá dưới cùng một định danh (Key).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- MasterFormat Browser -->
+        <div class="theory-sidebar">
+          <div class="card" style="height: 100%;">
+            <h2 class="card-title">Thư viện mã & đặc tả (MasterFormat)</h2>
+            <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:16px;">
+              MasterFormat quản lý đồng thời Đặc tả kỹ thuật và Đơn giá. Chọn một mã công tác bên dưới để kiểm tra thuộc tính:
+            </p>
+            <div class="class-browser" id="masterformat-browser-list">
+              <!-- Will be populated dynamically by app.js based on active project -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: KỊCH BẢN MINH HOẠ -->
+    <section class="tab-panel" id="panel-demo">
+      <div class="sandbox-layout">
+        
+        <!-- SIDEBAR: PARAMETERS & INPUTS -->
+        <aside class="sandbox-sidebar">
+          
+          <!-- CIVIL INPUTS -->
+          <div class="card project-inputs" id="inputs-civil">
+            <h2 class="card-title">Thông số thiết kế (BIM)</h2>
+            
+            <!-- A1: Dimension change -->
+            <div class="control-group">
+              <label class="control-label" for="slider-living-depth">
+                Chiều sâu phòng khách nới rộng
+                <span class="value" id="val-living-depth">+0.0 m</span>
+              </label>
+              <input type="range" id="slider-living-depth" min="0" max="1.5" step="0.1" value="0" oninput="updateCivilEstimating()">
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                Tác động: Sàn (+03 30 00), Tường xây (+04 20 00), Sơn bả (+09 90 00), Gạch lát (+09 30 00).
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="input-apartments-count">
+                Số căn hộ lặp điển hình
+                <span class="value" id="val-apartments-count">50 căn</span>
+              </label>
+              <input type="range" id="input-apartments-count" min="1" max="100" step="1" value="50" oninput="updateCivilEstimating()">
+            </div>
+            
+            <!-- A2: Material Specs -->
+            <div class="control-group">
+              <label class="control-label" for="select-window-spec">Đặc tả cửa sổ nhôm kính</label>
+              <select class="select-input" id="select-window-spec" onchange="updateCivilEstimating()">
+                <option value="08 50 00">Xingfa + Kính Low-E (Hệ cao cấp)</option>
+                <option value="08 50 01">Nhôm thường + Kính dán an toàn (Kinh tế)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="select-wc-tile-spec">Đặc tả gạch ốp khu vệ sinh</label>
+              <select class="select-input" id="select-wc-tile-spec" onchange="updateCivilEstimating()">
+                <option value="09 30 10">Đá Granite nhân tạo ốp tường (Hệ cao cấp)</option>
+                <option value="09 30 11">Gạch Ceramic men bóng (Kinh tế)</option>
+              </select>
+            </div>
+            
+            <!-- A3: Optioneering -->
+            <div class="control-group">
+              <label class="control-label">Phương án vách ngăn trong nhà</label>
+              <div class="option-grid">
+                <div class="option-card active" id="opt-civil-brick" onclick="selectCivilOption('BRICK')">
+                  <div class="option-title">PA A: Tường gạch</div>
+                  <div class="option-sub">Gạch dày 110mm + trát</div>
+                </div>
+                <div class="option-card" id="opt-civil-panel" onclick="selectCivilOption('PANEL')">
+                  <div class="option-title">PA B: Bê tông nhẹ</div>
+                  <div class="option-sub">Tấm 100mm, không trát</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFRA INPUTS (Hidden by default) -->
+          <div class="card project-inputs" id="inputs-infra" style="display:none;">
+            <h2 class="card-title" style="color:var(--accent-purple);">Thông số tuyến & cầu (BIM)</h2>
+            
+            <!-- B1: Dimension change (Profile Height) -->
+            <div class="control-group">
+              <label class="control-label" for="slider-profile-height">
+                Cao độ thiết kế đường đỏ
+                <span class="value" id="val-profile-height" style="color:var(--accent-purple);">0.0 m</span>
+              </label>
+              <input type="range" id="slider-profile-height" min="-3" max="3" step="0.2" value="0" oninput="updateInfraEstimating()">
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                Tác động phi tuyến: Đào nền đường (+31 23 00), Đắp K95/K98 (+31 23 23 / 24).
+              </div>
+            </div>
+            
+            <!-- B2: Material Specs -->
+            <div class="control-group">
+              <label class="control-label" for="select-pavement-spec">Kết cấu mặt đường</label>
+              <select class="select-input" id="select-pavement-spec" onchange="updateInfraEstimating()">
+                <option value="32 12 16">Mặt đường bê tông nhựa nóng (Thành phần A)</option>
+                <option value="32 13 13">Mặt đường bê tông xi măng (Thành phần B)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="select-girder-spec">Kết cấu dầm cầu cạn</label>
+              <select class="select-input" id="select-girder-spec" onchange="updateInfraEstimating()">
+                <option value="03 41 00">Dầm Super-T DƯL L=33m (Nhịp lớn)</option>
+                <option value="03 30 10">Dầm BTCT thường L=20m (Nhịp ngắn)</option>
+              </select>
+            </div>
+            
+            <!-- B3: Optioneering -->
+            <div class="control-group">
+              <label class="control-label">Phương án đi qua đất yếu (3km)</label>
+              <div class="option-grid">
+                <div class="option-card active" id="opt-infra-embank" onclick="selectInfraOption('EMBANK')">
+                  <div class="option-title">PA A: Đắp cao</div>
+                  <div class="option-sub">Đắp + Xử lý nền PVD</div>
+                </div>
+                <div class="option-card" id="opt-infra-viaduct" onclick="selectInfraOption('VIADUCT')">
+                  <div class="option-title">PA B: Cầu cạn</div>
+                  <div class="option-sub">Kết cấu dầm bê tông cạn</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- MIDDLE: INTERACTIVE MODEL VISUALIZER -->
+        <main class="sandbox-visualizer">
+          <div class="viewer-frame">
+            <div class="viewer-header">
+              <div class="viewer-title" id="viewer-title-label">Mô hình hình học 2D - Cấu kiện BIM</div>
+              <div class="viewer-controls">
+                <button class="viewer-btn" onclick="resetViewer()">Reset View</button>
+              </div>
+            </div>
+            <div class="viewer-content">
+              <!-- Visualized SVG here -->
+              <svg class="svg-canvas" id="interactive-svg" viewBox="0 0 400 300">
+                <!-- Marker definitions for dimension arrows -->
+                <defs>
+                  <marker id="arrow-start" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                  </marker>
+                  <marker id="arrow-end" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                  </marker>
+                </defs>
+                <g id="svg-interactive-group">
+                  <!-- Generated dynamically via app.js -->
+                </g>
+              </svg>
+            </div>
+            <div class="scenario-brief" id="scenario-brief-desc">
+              Thay đổi các thanh trượt và đặc tính ở cột bên trái để quan sát cấu kiện hình học biến đổi trực tiếp trên bản vẽ thiết kế BIM.
+            </div>
+          </div>
+        </main>
+
+        <!-- RIGHT: ESTIMATING DASHBOARD & KPI -->
+        <aside class="sandbox-dashboard">
+          
+          <!-- Key Indicators -->
+          <div class="card">
+            <h2 class="card-title">Kết quả dự toán tức thời</h2>
+            <div class="kpi-row">
+              <div class="kpi-card" id="kpi-total-cost">
+                <div class="kpi-label">Tổng Chi Phí</div>
+                <div class="kpi-value" id="val-total-cost">0.0 <span class="unit">tỷ đ</span></div>
+                <div class="kpi-diff neutral" id="diff-total-cost">---</div>
+              </div>
+              <div class="kpi-card" id="kpi-sqm-rate">
+                <div class="kpi-label" id="label-unit-rate">Suất đầu tư</div>
+                <div class="kpi-value" id="val-sqm-rate">0.0 <span class="unit">đ/m²</span></div>
+                <div class="kpi-diff neutral" id="diff-sqm-rate">---</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Item Estimates -->
+          <div class="card">
+            <h2 class="card-title">Bảng tiên lượng & đơn giá chi tiết</h2>
+            <div class="cost-sheet-wrap">
+              <table class="cost-table">
+                <thead>
+                  <tr>
+                    <th>Mã MF</th>
+                    <th>Nội dung công tác</th>
+                    <th style="text-align:right;">Khối lượng</th>
+                    <th>Đv</th>
+                    <th style="text-align:right;">Đơn giá</th>
+                    <th style="text-align:right;">Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody id="cost-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Optioneering Comparison Card -->
+          <div class="card">
+            <h2 class="card-title">So sánh hiệu quả phương án</h2>
+            <div class="comparison-container" id="optioneering-comparison-chart">
+              <!-- Dynamically populated chart -->
+            </div>
+          </div>
+          
+        </aside>
+      </div>
+    </section>
+
+    <!-- TAB 3: KHUYẾN NGHỊ CHÍNH SÁCH -->
+    <section class="tab-panel" id="panel-policy">
+      <div class="card" style="margin-bottom: 24px;">
+        <h2 class="card-title" style="font-size:20px; border-bottom: none; margin-bottom: 0;">Khuyến nghị hoàn thiện thể chế quản lý chi phí 2026</h2>
+      </div>
+      
+      <div class="policy-grid">
+        <div class="card policy-card">
+          <h3 class="card-title">1. Trục phân loại thống nhất</h3>
+          <p>Thiết lập một trục phân loại duy nhất kiểu MasterFormat kết hợp UniFormat cho cả công trình dân dụng và giao thông – hạ tầng.</p>
+          <ul>
+            <li><strong>IFC Link:</strong> Áp dụng chuẩn dữ liệu mở IFC (IfcClassificationReference) để liên kết vật thể hình học tự động với thư viện giá.</li>
+            <li><strong>Nhất quán:</strong> Các cấu kiện dùng chung (bê tông, kim loại) được chuẩn hóa chung một mã giữa các chuyên ngành.</li>
+          </ul>
+        </div>
+
+        <div class="card policy-card accent-teal">
+          <h3 class="card-title" style="color:var(--accent-teal);">2. Thư viện giá & đặc tả</h3>
+          <p>Xây dựng hệ thống cơ sở dữ liệu quốc gia về Suất đầu tư và Giá xây dựng tổng hợp đi liền đặc tả kỹ thuật hoàn chỉnh.</p>
+          <ul>
+            <li><strong>Đồng bộ mã:</strong> Giá và đặc tả được đăng ký chung một khóa (join key) tránh tình trạng báo giá thiếu thông tin kỹ thuật.</li>
+            <li><strong>Tính sẵn sàng:</strong> Cập nhật dữ liệu động định kỳ từ các dự án thực tế làm benchmark cho lập dự án sớm.</li>
+          </ul>
+        </div>
+
+        <div class="card policy-card accent-amber">
+          <h3 class="card-title" style="color:var(--accent-amber);">3. Quy tắc đo bóc tương thích BIM</h3>
+          <p>Ban hành Quy định đo bóc tiên lượng thiết kế dạng "máy đọc được" để phần mềm tự động trích xuất khối lượng nhất quán.</p>
+          <ul>
+            <li><strong>Hàm tất định:</strong> Khối lượng được định nghĩa như một hàm toán học từ thuộc tính hình học của BIM.</li>
+            <li><strong>Net/Gross & LOD:</strong> Quy định chi tiết mức khấu trừ lỗ mở và yêu cầu mức độ thông tin (LOD/LOIN) theo giai đoạn thiết kế.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Viện Kinh Tế Xây Dựng - Bộ Xây Dựng. Bản quyền tài liệu kỹ thuật phục vụ hội thảo.</p>
+      <p style="margin-top: 6px; font-size: 11px; opacity: 0.7;">Thiết kế mô phỏng tương tác BIM 5D Dự Toán Chủ Động.</p>
+    </div>
+  </footer>
+
+  <!-- Webapp Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
